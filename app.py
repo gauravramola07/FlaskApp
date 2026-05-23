@@ -52,12 +52,18 @@ def index():
     return render_template('todo.html')
 
 
+
 @app.route('/api')
 def get_data():
     try:
-        with open('data.json', 'r') as f:
-            data = json.load(f)
-        return jsonify(data)
+        # Fetch all documents from MongoDB collection
+        documents = list(collection.find())
+        
+        # Convert ObjectId to string for JSON serialization
+        for doc in documents:
+            doc['_id'] = str(doc['_id'])
+        
+        return jsonify(documents)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -82,13 +88,15 @@ def submit_todo_item():
     try:
         item_id = request.form.get('itemId')
         item_uuid = request.form.get('itemUuid')
+        item_hash = request.form.get('itemHash')
         item_name = request.form.get('itemName')
         item_description = request.form.get('itemDescription')
-        if not item_id or not item_uuid or not item_name or not item_description:
-            return render_template('todo.html', error="Item ID, Item UUID, Item Name and Item Description are required."), 400
+        if not item_id or not item_uuid or not item_hash or not item_name or not item_description:
+            return render_template('todo.html', error="Item ID, Item UUID, Item Hash, Item Name and Item Description are required."), 400
         todo_data = {
             "itemId": item_id,
             "itemUuid": item_uuid,
+            "itemHash": item_hash,
             "itemName": item_name,
             "itemDescription": item_description
         }
