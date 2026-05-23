@@ -49,7 +49,8 @@ collection = db[MONGODB_COLLECTION]
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('todo.html')
+
 
 @app.route('/api')
 def get_data():
@@ -79,11 +80,15 @@ def success():
 @app.route('/submittodoitem', methods=['POST'])
 def submit_todo_item():
     try:
+        item_id = request.form.get('itemId')
+        item_uuid = request.form.get('itemUuid')
         item_name = request.form.get('itemName')
         item_description = request.form.get('itemDescription')
-        if not item_name or not item_description:
-            return render_template('todo.html', error="Item Name and Item Description are required."), 400
+        if not item_id or not item_uuid or not item_name or not item_description:
+            return render_template('todo.html', error="Item ID, Item UUID, Item Name and Item Description are required."), 400
         todo_data = {
+            "itemId": item_id,
+            "itemUuid": item_uuid,
             "itemName": item_name,
             "itemDescription": item_description
         }
